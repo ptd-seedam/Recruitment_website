@@ -1,64 +1,80 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProductController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BaiVietController;
+use App\Http\Controllers\DotUngTuyenController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NopDonController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\NhapHangController;
+use App\Http\Controllers\ViTriController;
+use Illuminate\Support\Facades\Route;
 
-Route::get('/', [UserController::class, 'login'])->name('login');
+
+Route::get('/', [HomeController::class, 'index'])->name('index');
+// login
+Route::get('/login-a', [UserController::class, 'login_a'])->name('login');
+Route::get('/login-b', [UserController::class, 'login_b'])->name('register_a');
+Route::post('/auth', [UserController::class, 'auth'])->name('auth');
+Route::post('/register', [UserController::class, 'register_user'])->name('register');
 Route::get('/logout', [UserController::class, 'logout'])->name('logout');
+//baiViet
+Route::get('/baiViet/{id}', [BaiVietController::class, 'baiViet'])->name('user.baiviet');
+Route::get('/baiViet/{idu}/{idbv}', [BaiVietController::class, 'nop'])->name('user.baiviet.nop');
+Route::get('/baiviet/list', [BaiVietController::class, 'user_list'])->name('user.baiviet.list');
+// xem hồ sơ đã nộp
+Route::get('/hoso/{id}', [NopDonController::class, 'user_list'])->name('user.don.list');
 
-Route::post('/auth-login', [UserController::class, 'auth_login'])->name('auth_login');
+//route
+// Hiển thị hồ sơ người dùng
+Route::get('/profile/{id}', [UserController::class, 'show'])->name('user.profile');
 
-Route::middleware(['checklogin'])->prefix('B2103421')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
-    // User
-    Route::get('/user/list', [UserController::class, 'list'])->name('user.index');
-    Route::get('/user/edit/{id}', [UserController::class, 'edit'])->name('user.edit');
-    Route::get('/user/delete/{id}', [UserController::class, 'delete'])->name('user.delete');
-    Route::post('/user/update/{id}', [UserController::class, 'update'])->name('user.update');
-    Route::post('users/store', [UserController::class, 'store'])->name('user.store');
-    Route::get('/user/create', [UserController::class, 'create'])->name('user.create');
+Route::get('/info_create', [UserController::class, 'concacloiquai'])->name('loivcl');
 
-    // danh thu
-    Route::post('/revenue', [DashboardController::class, 'revenue'])->name('revenue');
+Route::post('/profile/store', [UserController::class, 'profile_store'])->name('user.profile.store');
 
-    // Product routes
-    Route::get('/Product/list', [ProductController::class, 'list'])->name('product.list');
-    Route::get('/Product/add', [ProductController::class, 'add'])->name('product.add');
-    Route::post('/Product/store', [ProductController::class, 'store'])->name('product.store');
-    Route::get('/Product/edit/{id}', [ProductController::class, 'edit'])->name('product.edit');
-    Route::post('/Product/update/{id}', [ProductController::class, 'update'])->name('product.update');
-    Route::get('/Product/delete/{id}', [ProductController::class, 'delete'])->name('product.delete');
+// Chỉnh sửa hồ sơ người dùng
+Route::get('/profile/{id}/edit', [UserController::class, 'profile_edit'])->name('user.profile.edit');
 
-    // order routes
-    Route::get('/order', [OrderController::class, 'index'])->name('order.index');
-    Route::get('/order/{id}', [OrderController::class, 'show'])->name('order.show');
-    Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
-    Route::get('/order/{id}/edit', [OrderController::class, 'edit'])->name('order.edit');
-    Route::post('/order/{id}/update', [OrderController::class, 'update'])->name('order.update');
-    Route::get('/order/{id}/delete', [OrderController::class, 'destroy'])->name('order.delete');
-    Route::get('/order/create/new', [OrderController::class, 'create_all'])->name('order.create');
+// Cập nhật thông tin hồ sơ người dùng
+Route::post('/profile/{id}/update', [UserController::class, 'profile_update'])->name('user.profile.update');
 
-    // Nhập hàng
-    Route::get('/nhap', [NhapHangController::class, 'index'])->name('nhap.index');
-    Route::get('/nhap/{id}', [NhapHangController::class, 'show'])->name('nhap.show');
-    Route::post('/nhap/store', [NhapHangController::class, 'store'])->name('nhap.store');
-    Route::get('/nhap/{id}/edit', [NhapHangController::class, 'edit'])->name('nhap.edit');
-    Route::post('/nhap/{id}/update', [NhapHangController::class, 'update'])->name('nhap.update');
-    Route::get('/nhap/{id}/delete', [NhapHangController::class, 'destroy'])->name('nhap.delete');
-    Route::get('/nhap/create/new', [NhapHangController::class, 'create_all'])->name('nhap.create');
-    // customer
-    Route::prefix('customer')->group(function () {
 
-        Route::get('/', [CustomerController::class, 'list'])->name('customer.list');
-        Route::get('/create', [CustomerController::class, 'create'])->name('customer.create');
-        Route::post('/store', [CustomerController::class, 'store'])->name('customer.store');
-        Route::get('/{id}/edit', [CustomerController::class, 'edit'])->name('customer.edit');
-        Route::post('/{id}/update', [CustomerController::class, 'update'])->name('customer.update');
-        Route::get('/{id}/delete', [CustomerController::class, 'delete'])->name('customer.delete');
-    });
+
+
+Route::middleware(['admin'])->prefix('admin')->group(function () {
+    Route::get('index', function () {
+        return view('admin.pages.index');
+    })->name('admin.pages.index');
+    //user
+    Route::get('user/list', [UserController::class, 'list'])->name('admin.user.list');
+    Route::get('user/edit/{id}', [UserController::class, 'edit'])->name('admin.user.edit_form');
+    Route::put('user/edit/update/{id}', [UserController::class, 'update'])->name('admin.user.edit.update');
+    Route::get('user/create', [UserController::class, 'add'])->name('admin.user.add_form');
+    Route::post('user/create/store', [UserController::class, 'store'])->name('admin.user.store');
+    Route::get('user/delete/{id}', [UserController::class, 'delete'])->name('admin.user.delete');
+    //dot_ung_tuyen
+    Route::get('dotungtuyen/list', [DotUngTuyenController::class, 'list'])->name('admin.dotungtuyen.list');
+    Route::get('dotungtuyen/edit/{id}', [DotUngTuyenController::class, 'edit'])->name('admin.dotungtuyen.edit_form');
+    Route::put('dotungtuyen/edit/update/{id}', [DotUngTuyenController::class, 'update'])->name('admin.dotungtuyen.edit.update');
+    Route::get('dotungtuyen/create', [DotUngTuyenController::class, 'add'])->name('admin.dotungtuyen.add_form');
+    Route::post('dotungtuyen/create/store', [DotUngTuyenController::class, 'store'])->name('admin.dotungtuyen.store');
+    Route::get('dotungtuyen/delete/{id}', [DotUngTuyenController::class, 'delete'])->name('admin.dotungtuyen.delete');
+    //vị trí tuyển dụng
+    Route::get('vitri/list', [ViTriController::class, 'list'])->name('admin.vitri.list');
+    Route::get('vitri/edit/{id}', [ViTriController::class, 'edit'])->name('admin.vitri.edit_form');
+    Route::put('vitri/edit/update/{id}', [ViTriController::class, 'update'])->name('admin.vitri.edit.update');
+    Route::get('vitri/create', [ViTriController::class, 'add'])->name('admin.vitri.add_form');
+    Route::post('vitri/create/store', [ViTriController::class, 'store'])->name('admin.vitri.store');
+    Route::get('vitri/delete/{id}', [ViTriController::class, 'delete'])->name('admin.vitri.delete');
+    //Bài viết tuyển dụng
+    Route::get('baiviet/list', [BaiVietController::class, 'list'])->name('admin.baiviet.list');
+    Route::get('baiviet/edit/{id}', [BaiVietController::class, 'edit'])->name('admin.baiviet.edit_form');
+    Route::put('baiviet/edit/update/{id}', [BaiVietController::class, 'update'])->name('admin.baiviet.edit.update');
+    Route::get('baiviet/create', [BaiVietController::class, 'add'])->name('admin.baiviet.add_form');
+    Route::post('baiviet/create/store', [BaiVietController::class, 'store'])->name('admin.baiviet.store');
+    Route::get('baiviet/delete/{id}', [BaiVietController::class, 'delete'])->name('admin.baiviet.delete');
+    //đơn tuyển dụng
+    Route::get('donUngtuyen/list/{id}', [NopDonController::class, 'list'])->name('admin.don.list');
+    Route::get('donUngtuyen/edit/{id}', [NopDonController::class, 'edit'])->name('admin.don.edit');
+    Route::post('donUngtuyen/edit/update/{id}', [NopDonController::class, 'update'])->name('admin.don.update');
+    Route::get('donUngtuyen/delete/{id}', [NopDonController::class, 'delete'])->name('admin.don.delete');
 });
